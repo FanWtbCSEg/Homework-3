@@ -62,11 +62,13 @@ class EqualWeightPortfolio:
         # Get the assets by excluding the specified column
         assets = df.columns[df.columns != self.exclude]
         self.portfolio_weights = pd.DataFrame(index=df.index, columns=df.columns)
-
         """
         TODO: Complete Task 1 Below
         """
-
+        #print(df.columns)
+        #print(assets)
+        eq_weight = 1 / len(assets) # calculate equal weights
+        self.portfolio_weights.loc[:, assets] = eq_weight # update the portfolio weights for all the assets at each time step
         """
         TODO: Complete Task 1 Above
         """
@@ -108,6 +110,9 @@ class RiskParityPortfolio:
         self.lookback = lookback
 
     def calculate_weights(self):
+        addoo = [0]
+        count = 0
+        fiv = ""
         # Get the assets by excluding the specified column
         assets = df.columns[df.columns != self.exclude]
 
@@ -117,7 +122,21 @@ class RiskParityPortfolio:
         """
         TODO: Complete Task 2 Below
         """
-
+        self.portfolio_weights.loc[:, df.columns] = 0
+        for i in range(51, 1319):
+            for j in range (1,12):
+                self.portfolio_weights.iloc[i,j] = (df_returns.iloc[i-self.lookback:i,j]).std()
+        for i in range(0, 1319):
+            addoo.append(0)
+            if(i < 51):
+                continue
+            for j in range(12):
+                if(j == 0): continue
+                addoo[i] = addoo[i] + 1/(self.portfolio_weights.iloc[i, j])
+        for i in range(self.lookback+1, 1319):
+            for j in range (12):
+                if(j == 0): continue
+                self.portfolio_weights.iloc[i,j] = (1/(self.portfolio_weights.iloc[i, j]))/addoo[i]
         """
         TODO: Complete Task 2 Above
         """
@@ -192,9 +211,9 @@ class MeanVariancePortfolio:
 
                 # Sample Code: Initialize Decision w and the Objective
                 # NOTE: You can modify the following code
-                w = model.addMVar(n, name="w", ub=1)
-                model.setObjective(w.sum(), gp.GRB.MAXIMIZE)
-
+                w = model.addMVar(n, name="w", ub=1, lb = 0)
+                model.setObjective(w.T @ mu - gamma/2 * w.T @ Sigma @ w, gp.GRB.MAXIMIZE)
+                model.addConstr(w.sum() == 1, name = "ii")
                 """
                 TODO: Complete Task 3 Below
                 """
