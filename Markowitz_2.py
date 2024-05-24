@@ -74,7 +74,10 @@ class MyPortfolio:
         """
         TODO: Complete Task 4 Below
         """
-
+        self.calculate_portfolio_returns()
+        print(self.price)
+        print(self.portfolio_returns)
+        self.portfolio_weights.loc[:,"XLK"] = 1
         """
         TODO: Complete Task 4 Above
         """
